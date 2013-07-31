@@ -43,9 +43,11 @@ class CASClient():
         Decorator to enable CAS authentication for a bottle route
     
         :Usage:
-    
+           from bottle_cas import client
+           cas = client()
+ 
            @route('/foo')
-           @require
+           @cas.require
            def foo():
           NOTE: The require statement must be used between the route definition and the function.
                 If using an additional authentication scheme (LDAP) this should be defined below the CAS require

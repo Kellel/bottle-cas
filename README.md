@@ -8,10 +8,11 @@ A CAS Client written with bottle.py
 ```python
 
 from bottle import route, run, request
-from bottle_cas.client import require
+from bottle_cas import client
+cas = client()
 
 @route('/')
-@require
+@cas.require
 def index():
     user = request.environ['REMOTE_USER']
     return "Hello %s." % user
