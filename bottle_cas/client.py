@@ -21,11 +21,11 @@ TICKET_OK      = 0        #  Valid CAS server ticket found.
 TICKET_NONE    = 1        #  No CAS server ticket found.
 TICKET_INVALID = 2        #  Invalid CAS server ticket found.
 
-CAS_SERVER = "https://websso.wwu.edu"
+CAS_SERVER = "https://sso.your.domain"
 CAS_LOGOUT_URL = "/cas/logout"
-CAS_COOKIE = "WWUWEBSSO"
+CAS_COOKIE = "WEBSSO"
 MAX_COOKIE_AGE = 1
-SECRET = "7e16162998eb7efafb1498f75190a937"
+SECRET = "2ok34j4h343kl2ok34j4h343kl7e167efafb1498f75190a937"
 DEBUG = 0
 
 def _do_login():
@@ -150,4 +150,4 @@ if __name__ == '__main__':
     @route('/logout')
     def lout():
         logout()
-    run(host='localhost', port=8000)
+    run(host='localhost', port=8090)
