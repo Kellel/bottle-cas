@@ -66,7 +66,7 @@ def require(fn):
             if status==TICKET_OK:
                 if DEBUG:
                     print "Ticket OK"
-                response.set_cookie(CAS_COOKIE, user, secret=SECRET, expires=time.time()+ 60*MAX_COOKIE_AGE)
+                response.set_cookie(CAS_COOKIE, user, secret=SECRET, path='/', expires=time.time()+ 60*MAX_COOKIE_AGE)
                 request.environ["REMOTE_USER"] = user
                 # Remove the query variables from uri
                 url = request.urlparts
