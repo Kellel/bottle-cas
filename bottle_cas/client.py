@@ -82,18 +82,23 @@ class CASClient():
             self._do_login()
         return wrapper
   
-    def logout(self):
+    def logout(self, next = None):
         """
         Will Redirect a user to the CAS logout page
     
         :returns: Will not return
         :rtype: `None`
         """
-        next = '?url=' + request.url
-        cas_url = urlparse.urljoin(self._CAS_SERVER, self._CAS_LOGOUT_URL) 
-        new_url = (cas_url[0],cas_url[1], cas_url[2], next, cas_url[4])
+        new_url = self._CAS_SERVER + self._CAS_LOGOUT_URL
+        
+        if next:
+            next = '?url=' + next
+            new_url = new_url + next
+
         response.set_cookie(self._CAS_COOKIE, '', expires=0)
-        redirect(urlparse.urlunparse(new_url))
+        if self._DEBUG:
+            print "User logged out with request %s" %new_url
+        redirect(new_url)
     
     # A function to grab a xml tag. This isn't the best possible implementation but it works
     # It also doesn't require an external library
@@ -140,10 +145,10 @@ class CASClient():
 
 if __name__ == '__main__':
     cas = CASClient()
+    
     @route('/')
-    @cas.require
     def index():
-        user = request.environ.get('REMOTE_USER')
+        user = request.environ.get('REMOTE_USER') or 'default'
         resp =  """
             <a href="/thing">A page for authenticated clients</a>
             """
@@ -153,9 +158,9 @@ if __name__ == '__main__':
     @cas.require
     def thing():
         user = request.environ.get('REMOTE_USER')
-        return "Hello, %s. This is a CAS client written in bottle" %user
+        return "Hello, %s. This is a CAS client written in bottle\n <a href='logout'>Logout</a>" %user
 
     @route('/logout')
     def log_out():
-        logout()
+        cas.logout('http://localhost:8090/')
     run(host='localhost', port=8090)
