@@ -8,7 +8,7 @@ A CAS Client written with bottle.py
 ```python
 
 from bottle import route, run, request
-from bottle-cas.client import require
+from bottle_cas.client import require
 
 @route('/')
 @require
