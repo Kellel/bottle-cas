@@ -81,7 +81,7 @@ class CASClient():
                     raise Exception("Ticket Validation FAILED!")
             self._do_login()
         return wrapper
-    
+  
     def logout(self):
         """
         Will Redirect a user to the CAS logout page
@@ -89,8 +89,11 @@ class CASClient():
         :returns: Will not return
         :rtype: `None`
         """
+        next = '?url=' + request.url
+        cas_url = urlparse.urljoin(self._CAS_SERVER, self._CAS_LOGOUT_URL) 
+        new_url = (cas_url[0],cas_url[1], cas_url[2], next, cas_url[4])
         response.set_cookie(self._CAS_COOKIE, '', expires=0)
-        redirect(urlparse.urljoin(self._CAS_SERVER, self._CAS_LOGOUT_URL))
+        redirect(urlparse.urlunparse(new_url))
     
     # A function to grab a xml tag. This isn't the best possible implementation but it works
     # It also doesn't require an external library
