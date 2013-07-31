@@ -30,7 +30,8 @@ class CASClient():
         self._MAX_COOKIE_AGE = config.MAX_COOKIE_AGE
         self._SECRET = config.SECRET
         self._DEBUG = config.DEBUG
-        pass
+        self._COOKIE_PATH = config.COOKIE_PATH
+
     def _do_login(self):
         url = request.urlparts
         newurl = (url[0],url[1],url[2],'',url[4])
@@ -69,7 +70,7 @@ class CASClient():
                 if status==TICKET_OK:
                     if self._DEBUG:
                         print "Ticket OK"
-                    response.set_cookie(self._CAS_COOKIE, user, secret=self._SECRET, path='/', expires=time.time()+ 60*self._MAX_COOKIE_AGE)
+                    response.set_cookie(self._CAS_COOKIE, user, secret=self._SECRET, path=self._COOKIE_PATH, expires=time.time()+ 60*self._MAX_COOKIE_AGE)
                     request.environ["REMOTE_USER"] = user
                     # Remove the query variables from uri
                     url = request.urlparts
