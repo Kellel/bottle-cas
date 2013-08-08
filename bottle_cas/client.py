@@ -11,6 +11,7 @@ CAS SSO Client for bottle applications
 """
 
 from bottle import route, run, request, redirect, response
+import bottle
 import urllib2
 import urlparse
 from functools import wraps
@@ -37,43 +38,45 @@ class CASClient():
         newurl = (url[0],url[1],url[2],'',url[4])
         cas_url = self._CAS_SERVER + "/cas/login?service=" + urlparse.urlunsplit(newurl)
         redirect(cas_url)
-    
+
     def require(self, fn):
         """
         Decorator to enable CAS authentication for a bottle route
-    
+
         :Usage:
            from bottle_cas import client
            cas = client()
- 
+
            @route('/foo')
            @cas.require
            def foo():
           NOTE: The require statement must be used between the route definition and the function.
                 If using an additional authentication scheme (LDAP) this should be defined below the CAS require
-    
+
         :returns: A wrapped route that requres CAS authentication
         :rtype: `function`
         """
-    
+
         @wraps(fn)
         def wrapper(*args, **kwargs):
-            cookie = request.get_cookie(self._CAS_COOKIE, secret=self._SECRET)
+            #cookie = request.get_cookie(self._CAS_COOKIE, secret=self._SECRET)
+            session = request.environ['beaker.session']
             ticket = request.query.ticket;
-            if cookie:
+            if 'username' in session:
                 if self._DEBUG:
                     print "Valid Cookie Found"
-                request.environ['REMOTE_USER'] = cookie
+                request.environ['REMOTE_USER'] = session['username']
                 return fn(*args, **kwargs)
-            if ticket:
+            elif ticket:
                 if self._DEBUG:
                     print "Ticket: %s recieved" % ticket
                 status, user = self._validate(ticket)
                 if status==TICKET_OK:
                     if self._DEBUG:
                         print "Ticket OK"
-                    response.set_cookie(self._CAS_COOKIE, user, secret=self._SECRET, path=self._COOKIE_PATH, expires=time.time()+ 60*self._MAX_COOKIE_AGE)
-                    request.environ["REMOTE_USER"] = user
+                    session['username'] = user
+                    session.save()
+                    #response.set_cookie(self._CAS_COOKIE, user, secret=self._SECRET, path=self._COOKIE_PATH, expires=time.time()+ 60*self._MAX_COOKIE_AGE)
                     # Remove the query variables from uri
                     url = request.urlparts
                     new_url = (url[0],url[1],url[2],'',url[4])
@@ -83,34 +86,35 @@ class CASClient():
                     raise Exception("Ticket Validation FAILED!")
             self._do_login()
         return wrapper
-  
+
     def logout(self, next = None):
         """
         Will Redirect a user to the CAS logout page
-    
+
         :returns: Will not return
         :rtype: `None`
         """
         new_url = self._CAS_SERVER + self._CAS_LOGOUT_URL
-        
+
         if next:
             next = '?url=' + next
             new_url = new_url + next
-
-        response.set_cookie(self._CAS_COOKIE, '', expires=0)
+        session = request.environ['beaker.session']
+        session.delete()
+        #response.set_cookie(self._CAS_COOKIE, '', expires=0)
         if self._DEBUG:
             print "User logged out with request %s" %new_url
         redirect(new_url)
-    
+
     # A function to grab a xml tag. This isn't the best possible implementation but it works
     # It also doesn't require an external library
     def _parse_tag(self, str,tag):
         """
         Internal Function to parse a specific xml tag
-    
+
         :Usage:
             _parse_tag(foo_string, "tag")
-    
+
         :returns: the text contained within the tag specified
         :returns: `string`
         """
@@ -122,12 +126,12 @@ class CASClient():
         tag2_pos1 = str.find("</" + tag,tag1_pos2)
         if tag2_pos1==-1: return ""
         return str[tag1_pos2+1:tag2_pos1].strip()
-    
+
     # Validate the CAS ticket using CAS version 2
     def _validate(self, ticket):
         """
         Internal function to validate a CAS ticket
-    
+
         :returns: ticket_status and username
         :rtype: `int` and `string`
         """
@@ -143,11 +147,22 @@ class CASClient():
             return TICKET_INVALID, ""
         else:
             return TICKET_OK, user
-    
+
+def get_beaker_opts():
+    import config
+    return  {
+        'session.type': 'cookie',
+        'session.cookie_expires': True,
+        'session.validate_key': config.CAS_COOKIE + config.SECRET,
+        'session.encrypt_key': config.SECRET,
+        }
 
 if __name__ == '__main__':
     cas = CASClient()
-    
+    app = bottle.app()
+    from beaker.middleware import SessionMiddleware
+    application = SessionMiddleware(app, get_beaker_opts())
+
     @route('/')
     def index():
         user = request.environ.get('REMOTE_USER') or 'default'
@@ -164,5 +179,5 @@ if __name__ == '__main__':
 
     @route('/logout')
     def log_out():
-        cas.logout('http://localhost:8090/')
-    run(host='localhost', port=8090)
+        cas.logout('http://reddit.com/')
+    run(app=application,host='localhost', port=8000)
