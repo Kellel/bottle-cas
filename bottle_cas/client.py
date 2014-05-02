@@ -16,6 +16,7 @@ import urllib2
 import urlparse
 from functools import wraps
 import time
+from beaker.middleware import SessionMiddleware
 
 #  Status codes returned by function validate().
 TICKET_OK      = 0        #  Valid CAS server ticket found.
@@ -32,6 +33,7 @@ class CASClient():
         self._SECRET = config.SECRET
         self._DEBUG = config.DEBUG
         self._COOKIE_PATH = config.COOKIE_PATH
+
 
     def _do_login(self):
         url = request.urlparts
@@ -148,20 +150,25 @@ class CASClient():
         else:
             return TICKET_OK, user
 
-def get_beaker_opts():
-    import config
-    return  {
-        'session.type': 'cookie',
-        'session.cookie_expires': True,
-        'session.validate_key': config.CAS_COOKIE + config.SECRET,
-        'session.encrypt_key': config.SECRET,
-        }
+class CASMiddleware(SessionMiddleware):
+    def __init__(self, app):
+        SessionMiddleware.__init__(self, app, self.get_beaker_opts())
+
+    def get_beaker_opts(self):
+        import config
+        return  {
+            'session.type': 'cookie',
+            'session.cookie_expires': True,
+            'session.validate_key': config.CAS_COOKIE + config.SECRET,
+            'session.encrypt_key': config.SECRET,
+            }
 
 if __name__ == '__main__':
     cas = CASClient()
     app = bottle.app()
     from beaker.middleware import SessionMiddleware
-    application = SessionMiddleware(app, get_beaker_opts())
+    from ProxyMiddleware.ProxyMiddleware import ReverseProxied
+    application = ReverseProxied(CASMiddleware(app))
 
     @route('/')
     def index():
@@ -180,4 +187,4 @@ if __name__ == '__main__':
     @route('/logout')
     def log_out():
         cas.logout('http://reddit.com/')
-    run(app=application,host='localhost', port=8000)
+    run(app=application,host='localhost', port=8001)
