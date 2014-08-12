@@ -13,6 +13,7 @@ CAS SSO Client for bottle applications
 from bottle import route, run, request, redirect, response
 import bottle
 import urllib2
+import requests
 import urlparse
 from functools import wraps
 import time
@@ -140,8 +141,9 @@ class CASClient():
         url = request.urlparts
         newurl = (url[0],url[1],url[2],'',url[4])
         url_string = self._CAS_SERVER + "/cas/serviceValidate?ticket=" + ticket + "&service=" + urlparse.urlunsplit(newurl)
-        validate_resp = urllib2.urlopen(url_string)
-        resp = validate_resp.read()
+        validate_resp = requests.get(url_string, verify=True)
+        #validate_resp = urllib2.urlopen(url_string)
+        resp = validate_resp.text
         user = self._parse_tag(resp, "cas:user")
         ## For debug
         #print resp
