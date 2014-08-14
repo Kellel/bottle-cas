@@ -42,6 +42,24 @@ class CASClient():
         cas_url = self._CAS_SERVER + "/cas/login?service=" + urlparse.urlunsplit(newurl)
         redirect(cas_url)
 
+    def test_login(self, fn):
+        """
+        Decorator to test CAS authentication status in a bottle route
+
+        **Note** this doesn't ensure that they are logged in, just tells you if they already are
+        """
+        
+        @wraps(fn)
+        def wrapper(*args, **kwargs):
+            session = request.environ['beaker.session']
+            if 'username' in session:
+                request.environ['REMOTE_USER_STATUS'] = "VALID"
+            else:
+                request.environ['REMOTE_USER_STATUS'] = "INVALID"
+            return fn(*args, **kwargs)
+        return wrapper
+
+
     def require(self, fn):
         """
         Decorator to enable CAS authentication for a bottle route
@@ -179,6 +197,11 @@ if __name__ == '__main__':
             <a href="/thing">A page for authenticated clients</a>
             """
         return resp
+
+    @route('/test')
+    @cas.test_login
+    def test():
+        return request.environ.get('REMOTE_USER_STATUS')
 
     @route('/thing')
     @cas.require
