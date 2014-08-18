@@ -6,12 +6,12 @@ A CAS Client written with bottle.py
 ### Usage
 ```python
 
-from bottle import route, run, request, bottle
+from bottle import route, run, request, Bottle
 from bottle_cas.client import CASClient
 from bottle_cas.client import CASMiddleware
 cas = CASClient()
 
-app = bottle
+app = Bottle()
 app = CASMiddleware(app)
 
 @route('/')
