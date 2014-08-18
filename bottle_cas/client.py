@@ -48,7 +48,7 @@ class CASClient():
 
         **Note** this doesn't ensure that they are logged in, just tells you if they already are
         """
-        
+
         @wraps(fn)
         def wrapper(*args, **kwargs):
             session = request.environ['beaker.session']
