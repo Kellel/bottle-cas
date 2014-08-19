@@ -179,6 +179,8 @@ class CASMiddleware(SessionMiddleware):
         return  {
             'session.type': 'cookie',
             'session.cookie_expires': True,
+            'session.secure': True,
+            'session.timeout': 600,
             'session.validate_key': config.CAS_COOKIE + config.SECRET,
             'session.encrypt_key': config.SECRET,
             }
