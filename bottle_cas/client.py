@@ -180,7 +180,7 @@ class CASMiddleware(SessionMiddleware):
             'session.type': 'cookie',
             'session.cookie_expires': True,
             'session.secure': True,
-            'session.timeout': 600,
+            'session.timeout': config.TIMEOUT,
             'session.validate_key': config.CAS_COOKIE + config.SECRET,
             'session.encrypt_key': config.SECRET,
             }
