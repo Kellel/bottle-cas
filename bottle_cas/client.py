@@ -178,7 +178,7 @@ class CASMiddleware(SessionMiddleware):
         return  {
             'session.type': 'memory',
             'session.cookie_expires': True,
-            'session.secure': config.ALLOW_HTTP,
+            'session.secure': not config.ALLOW_HTTP,
             'session.timeout': config.TIMEOUT,
             'session.validate_key': config.CAS_COOKIE + config.SECRET,
             'session.encrypt_key': config.SECRET,
