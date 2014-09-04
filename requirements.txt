@@ -3,5 +3,6 @@ ProxyMiddleware==1.2
 argparse==1.2.1
 bottle==0.12.7
 distribute==0.6.24
+pycrypto==2.6.1
 requests==2.3.0
 wsgiref==0.1.2

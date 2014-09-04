@@ -30,7 +30,6 @@ class CASClient():
         self._CAS_SERVER = config.CAS_SERVER
         self._CAS_LOGOUT_URL = config.CAS_LOGOUT_URL
         self._CAS_COOKIE = config.CAS_COOKIE
-        self._MAX_COOKIE_AGE = config.MAX_COOKIE_AGE
         self._SECRET = config.SECRET
         self._DEBUG = config.DEBUG
         self._COOKIE_PATH = config.COOKIE_PATH
@@ -97,7 +96,7 @@ class CASClient():
                         print "Ticket OK"
                     session['username'] = user
                     session.save()
-                    #response.set_cookie(self._CAS_COOKIE, user, secret=self._SECRET, path=self._COOKIE_PATH, expires=time.time()+ 60*self._MAX_COOKIE_AGE)
+
                     # Remove the query variables from uri
                     url = request.urlparts
                     new_url = (url[0],url[1],url[2],'',url[4])
@@ -179,7 +178,7 @@ class CASMiddleware(SessionMiddleware):
         return  {
             'session.type': 'memory',
             'session.cookie_expires': True,
-            'session.secure': True,
+            'session.secure': config.ALLOW_HTTP,
             'session.timeout': config.TIMEOUT,
             'session.validate_key': config.CAS_COOKIE + config.SECRET,
             'session.encrypt_key': config.SECRET,
