@@ -12,9 +12,9 @@ CAS SSO Client for bottle applications
 
 from bottle import route, run, request, redirect, response
 import bottle
-import urllib2
 import requests
 import urlparse
+from urllib import urlencode
 from functools import wraps
 import time
 from beaker.middleware import SessionMiddleware
@@ -38,7 +38,8 @@ class CASClient():
     def _do_login(self):
         url = request.urlparts
         newurl = (url[0],url[1],url[2],'',url[4])
-        cas_url = self._CAS_SERVER + "/cas/login?service=" + urlparse.urlunsplit(newurl)
+        params = { 'service': urlparse.urlunsplit(newurl) }
+        cas_url = self._CAS_SERVER + "/cas/login?" + urlencode(params)
         redirect(cas_url)
 
     def test_login(self, fn):
@@ -156,14 +157,13 @@ class CASClient():
         :rtype: `int` and `string`
         """
         url = request.urlparts
-        newurl = (url[0],url[1],url[2],'',url[4])
-        url_string = self._CAS_SERVER + "/cas/serviceValidate?ticket=" + ticket + "&service=" + urlparse.urlunsplit(newurl)
+        newurl = urlparse.urlunsplit((url[0],url[1],url[2],'',url[4]))
+        params = { 'ticket': ticket, 'service': newurl }
+        url_string = self._CAS_SERVER + "/cas/serviceValidate?" + urlencode(params)
         validate_resp = requests.get(url_string, verify=True)
-        #validate_resp = urllib2.urlopen(url_string)
         resp = validate_resp.text
         user = self._parse_tag(resp, "cas:user")
-        ## For debug
-        #print resp
+
         if user=='':
             return TICKET_INVALID, ""
         else:
