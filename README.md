@@ -1,6 +1,8 @@
 bottle-cas
 ==========
 
+[![Build Status](https://travis-ci.org/Kellel/bottle-cas.svg?branch=master)](https://travis-ci.org/Kellel/bottle-cas)
+
 A CAS Client written with bottle.py
 
 ### Usage
