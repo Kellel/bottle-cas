@@ -118,7 +118,7 @@ class CASClient():
         new_url = self._CAS_SERVER + self._CAS_LOGOUT_URL
 
         if next:
-            next = '?url=' + next
+            next = '?url=' + urlencode(next)
             new_url = new_url + next
         session = request.environ['beaker.session']
         session.delete()
