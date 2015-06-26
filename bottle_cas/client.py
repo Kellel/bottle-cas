@@ -108,6 +108,43 @@ class CASClient():
             self._do_login()
         return wrapper
 
+    def require_user(self, users=None):
+        """
+        Decorator to permit access only to the given list of CAS-authenticated users.
+
+        :Usage:
+           from bottle_cas import client
+           cas = client()
+
+           @route('/foo')
+           @cas.require
+           @cas.require_user(['longb4'])
+           def foo():
+
+        :returns: A wrapped route that requires the authenticated user to be in the given access list
+        :rtype: `function`
+        """
+        def required_user_decorator(fn):
+            @wraps(fn)
+            def wrapper(*args, **kwargs):
+                current_user = request.environ.get('REMOTE_USER')
+                valid_user = False
+                if not current_user:
+                    # The wrapped route probably doesn't have @cas.require above this decorator call
+                    bottle.abort(403, "No user detected")
+                if users:
+                    if current_user in users:
+                        valid_user = True
+                    else:
+                        message = "Permission denied: {} is not an authorized user.".format(current_user)
+                if valid_user:
+                    return fn(*args, **kwargs)
+                else:
+                    # User unauthorized
+                    bottle.abort(401, message)
+            return wrapper
+        return required_user_decorator
+
     def logout(self, next = None):
         """
         Will Redirect a user to the CAS logout page
