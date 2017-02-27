@@ -14,7 +14,8 @@ COOKIE_PATH = '/'
 TIMEOUT = 600
 
 # Your cookie encryption key
-SECRET = "SUPER_SECRET_PASSPHRASE"
+# Change and uncomment this to remove errors
+# SECRET = "SUPER_SECRET_PASSPHRASE"
 
 # Store sessions in non https connections
 # WARNING: this makes session hijacking silly easy. PLS set this to False for production use
