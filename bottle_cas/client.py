@@ -213,7 +213,9 @@ class CASMiddleware(SessionMiddleware):
     def get_beaker_opts(self):
         import config
         return  {
-            'session.type': 'memory',
+            'session.type': config.BEAKER_TYPE,
+            'session.data_dir': config.BEAKER_DATA_DIR,
+            'session.lock_dir': config.BEAKER_LOCK_DIR,
             'session.cookie_expires': True,
             'session.secure': not config.ALLOW_HTTP,
             'session.timeout': config.TIMEOUT,
