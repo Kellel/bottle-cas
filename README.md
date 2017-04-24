@@ -38,7 +38,7 @@ cd /usr/lib/python2.7/site-packages/bottle_cas
 vim config.py
 ```
 
-You really should only need to edit `CAS_SERVER` to get this working.
+You really should only need to edit `CAS_SERVER` and `SECRET` to get this working.
 ```bash
 CAS_SERVER = "https://sso.domian.com" # sso server you would like to auth against
 CAS_LOGOUT_URL = "/cas/logout" # The url of the logout
