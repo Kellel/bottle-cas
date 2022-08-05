@@ -1,7 +1,7 @@
 Beaker==1.6.4
 ProxyMiddleware==1.2
 argparse==1.2.1
-bottle==0.12.7
+bottle==0.12.20
 distribute==0.6.24
 pycrypto==2.6.1
 requests==2.3.0
